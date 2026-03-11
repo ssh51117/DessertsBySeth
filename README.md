@@ -1,3 +1,9 @@
+### TODO
+Frontend:
+- make loading better
+- make other pages
+- make buttons clickable
+
 ### Frontend
 requirements:
 - landing page
