@@ -12,7 +12,7 @@ export default function Home() {
           priority
         />
         
-        <div className="absolute inset-0 flex items-center justify-center text-cream text-6xl font-bold">
+        <div className="absolute inset-0 flex items-center justify-center text-cream text-6xl font-bold font-serif tracking-wide drop-shadow-lg">
           Desserts By Seth
         </div>
       </div>
@@ -28,7 +28,7 @@ export default function Home() {
             height={200}
             />
             <div className="flex flex-col">
-            <h1 className="max-w text-2xl font-semibold leading-10 tracking-tight text-cream">
+            <h1 className="max-w text-2xl font-semibold leading-10 tracking-tight text-cream font-serif">
               About
             </h1>
             <p className="text-cream font-semibold text-lg justify-left">
@@ -44,7 +44,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col gap-4 py-4 px-4">
-            <h1 className="max-w text-2xl font-semibold leading-10 tracking-tight text-cream">
+            <h1 className="max-w text-2xl font-semibold leading-10 tracking-tight text-cream font-serif">
               Schedule
             </h1>
             <p className="text-cream text-xs font-semibold">Please note that availability may change on a week to week basis</p>
@@ -55,7 +55,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-2 gap-12 w-full items-start gap-8 px-4 py-8 bg-background-50 font-sans">
           <div className="flex flex-col items-center gap-4">
-            <p className="text-2xl font-semibold text-dark-green">
+            <p className="text-2xl font-semibold text-dark-green font-serif">
               Menu
             </p>
             <p className="font-semibold text-dark-green">
@@ -71,7 +71,7 @@ export default function Home() {
             />
           </div>
           <div className="flex flex-col items-center gap-4">
-            <p className="text-2xl font-semibold text-dark-green">
+            <p className="text-2xl font-semibold text-dark-green font-serif">
               Custom Orders
             </p>
             <p className="font-semibold text-dark-green">
@@ -88,7 +88,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            <p className="text-2xl font-semibold text-dark-green">
+            <p className="text-2xl font-semibold text-dark-green font-serif">
               Pop-ups
             </p>
             <p className="font-semibold text-dark-green">
@@ -105,7 +105,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            <p className="text-2xl font-semibold text-dark-green">
+            <p className="text-2xl font-semibold text-dark-green font-serif">
               Guinea Pigs
             </p>
             <p className="font-semibold text-dark-green">

@@ -3,21 +3,21 @@ import Link from "next/link"
 
 export default function Header() {
     return (
-    <header className="flex items-center justify-between min-h-[60px] px-4 bg-background-50 font-sans dark:bg-grey">
+    <header className="flex flex-col">
+    <div className="flex items-center justify-between h-[60px] px-4 bg-background-50 font-sans dark:bg-grey">
         <div className="flex items-center gap-3">
             <Link href="/menu" className="font-semibold text-black">Menu</Link>
-            <span className="font-semibold text-black">Custom Orders</span>
-            <span className="font-semibold text-black">Pop-ups</span>
-            <span className="font-semibold text-black">Guinea Pigs</span>
+            <Link href="pop-ups" className="font-semibold text-black">Pop-ups</Link>
+            <Link href="guinea-pigs" className="font-semibold text-black">Guinea Pigs</Link>
             <Link href="/cart" className="font-semibold text-black">Cart</Link>
+            <Link href="/custom-orders" className="font-semibold text-black">Custom Orders</Link>
         </div>
-        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-dark-green font-bold">
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-dark-green font-bold font-serif text-lg tracking-wide">
             Desserts By Seth
         </Link>
 
         <div className="flex items-center gap-3">
-            <span className="font-semibold text-black">About</span>
-            <span className="font-semibold text-black">Contact</span>
+            <Link href="/about" className="font-semibold text-black">About</Link>
             <Image
                 className="object"
                 src="/Instagram_simple_icon.png"
@@ -26,5 +26,8 @@ export default function Header() {
                 height={24}
                 />
             </div>
-        </header>)
+        </div>
+        <div className="h-px w-full bg-dark-green opacity-25" />
+        </header>
+    )
 }

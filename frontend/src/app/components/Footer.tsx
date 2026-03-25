@@ -12,7 +12,7 @@ export default function Footer() {
         </div>
         
         <div className="flex flex-col gap-3 items-center">
-            <div className="text-dark-green text-2xl font-bold">
+            <div className="text-dark-green text-2xl font-bold font-serif tracking-wide">
             Desserts By Seth
             </div>
             <p className="text-black">A home bakery </p>
