@@ -11,6 +11,7 @@ from .models import (
     CustomOrderRequest,
 )
 from rest_framework import serializers
+from django.db.models import Sum
 
 class MailingListSubscriberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,24 +28,34 @@ class GuineaPigSerializer(serializers.ModelSerializer):
 class GuineaPigDropSerializer(serializers.ModelSerializer):
     class Meta:
         model = GuineaPigDrop
-        fields = ["title", "description", "available_from", "available_until", "total_slots", "notified_at"]
+        fields = ["title", "description", "available_from", "available_until", "total_slots", "notified_at", "registration_until"]
         read_only_fields = ["created_at"]
 
-class GuineaPigClaimSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GuineaPigClaim
-        fields = ["drop", "guinea_pig", "pickup_time", "cancelled"]
-        read_only_fields = ["registered_at"]
+class GuineaPigAuthSerializer(serializers.Serializer):
+    auth_token = serializers.UUIDField()
+
+class GuineaPigClaimInputSerializer(GuineaPigAuthSerializer):
+    pickup_time = serializers.DateTimeField()
         
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ["name", "description", "price", "image"]
 
+def get_ordered_quantity(listing):
+    return PreorderItem.objects.filter(
+            order__status__in = [Preorder.CONFIRMED, Preorder.FULFILLED],
+            product=listing
+        ).aggregate(total = Sum('quantity'))['total'] or 0
+
 class PreorderListingSerializer(serializers.ModelSerializer):
+    remaining = serializers.SerializerMethodField()
     class Meta:
         model = PreorderListing
-        fields = ["name", "unit_price", "limit"]
+        fields = ["name", "unit_price", "limit", "remaining"]
+    
+    def get_remaining(self, obj):
+        return obj.limit - get_ordered_quantity(obj)
 
 class PreorderWindowSerializer(serializers.ModelSerializer):
     listings = PreorderListingSerializer(many=True)

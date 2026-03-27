@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 
 
@@ -7,7 +8,7 @@ import uuid
 class MailingListSubscriber(models.Model):
     email = models.EmailField(unique=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
-    unsubscribe_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    auth_token = models.UUIDField(default=uuid.uuid4, editable=False)
 
 ### Guinea Pig Tables
 
@@ -17,7 +18,7 @@ class GuineaPig(models.Model):
     notes = models.TextField(null=True, blank=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
-    unsubscribe_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    auth_token = models.UUIDField(default=uuid.uuid4, editable=False)
 
 class GuineaPigDrop(models.Model):
     title = models.CharField()
@@ -27,12 +28,13 @@ class GuineaPigDrop(models.Model):
     total_slots = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     notified_at = models.DateTimeField(blank=True, null=True)
+    registration_until = models.DateTimeField()
 
 class GuineaPigClaim(models.Model):
     drop = models.ForeignKey(GuineaPigDrop, on_delete=models.CASCADE)
     guinea_pig = models.ForeignKey(GuineaPig, on_delete=models.CASCADE)
     pickup_time = models.DateTimeField()
-    registered_at = models.DateTimeField(auto_now_add=True)
+    registered_at = models.DateTimeField(default=timezone.now)
     cancelled = models.BooleanField(default=False)
 
     class Meta:
@@ -51,13 +53,21 @@ class Product(models.Model):
     image = models.CharField()
 
 
-### Order Tables
+### Preorder Tables
 
 class PreorderWindow(models.Model):
+    REGULAR = "R"
+    POPUP = "P"
+    WINDOW_TYPE = [
+        (REGULAR, "Regular"),
+        (POPUP, "Pop-up")
+    ]
     opens_at = models.DateTimeField()
     closes_at = models.DateTimeField()
     pickup_date = models.DateField()
     active = models.BooleanField()
+    location = models.CharField(blank=True, default="")
+    type = models.CharField(choices=WINDOW_TYPE, default=REGULAR)
 
 class PreorderListing(models.Model):
     window = models.ForeignKey(PreorderWindow, on_delete=models.CASCADE, related_name="listings")
