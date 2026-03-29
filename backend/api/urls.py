@@ -13,5 +13,5 @@ urlpatterns = [
     path("preorders/<int:id>/status/", views.PreorderStatusView.as_view()),
     path("preorder-window/current/", views.PreorderWindowView.as_view()),
     path("custom-order/", views.CustomOrderView.as_view()),
-    
+    path("webook/", views.StripeWebhookView.as_view()),
 ]

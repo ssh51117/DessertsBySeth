@@ -73,6 +73,7 @@ class PreorderListing(models.Model):
     window = models.ForeignKey(PreorderWindow, on_delete=models.CASCADE, related_name="listings")
     name = models.CharField()
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     limit = models.IntegerField()
 
 class Preorder(models.Model):
@@ -87,6 +88,7 @@ class Preorder(models.Model):
         (CANCELLED, "Cancelled"),
     ]
     
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     window = models.ForeignKey(PreorderWindow, on_delete=models.CASCADE)
     customer_name = models.CharField()
     customer_email = models.EmailField()
@@ -99,7 +101,7 @@ class Preorder(models.Model):
 
 class PreorderItem(models.Model):
     order = models.ForeignKey(Preorder, models.CASCADE, related_name="items")
-    product = models.ForeignKey(PreorderListing, models.CASCADE)
+    product_listing = models.ForeignKey(PreorderListing, models.CASCADE)
     quantity = models.IntegerField()
 
 class CustomOrderRequest(models.Model):

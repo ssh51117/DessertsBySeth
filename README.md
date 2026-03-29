@@ -1,36 +1,11 @@
 # TODO
 ## Frontend:
-- make loading better
-- make other pages
-- make buttons clickable
+
 
 ## Backend:
-  2. Validation — add validate() methods to serializers as you implement each view, since you'll know exactly what needs checking
-  GuineaPigClaimView.post:
-  - Guinea pig tries to claim a drop they've already claimed (not cancelled) — unique_together will catch this at the database level
-  but you should catch it explicitly and return a clean error before hitting the DB
-  - Drop's available_until has passed — should check that the drop is still open before allowing a claim
-
-  GuineaPigMembershipView.post:
-  - Email already registered as a guinea pig — unique=True on the model will catch it but again worth a clean error message
-
-  MailingListView.post:
-  - Same — email already subscribed should return a clean error rather than a raw DB constraint error
-
-  PreorderView.post:
-  - Order window is no longer active — should check preorder_window.active before proceeding
-  - items is empty — someone submits an order with no items
-  - An item references a listing that doesn't belong to the submitted window — a malformed request could reference a listing from a
-  different window
-  - Quantity of zero or negative for an item
-
-  GuineaPigClaimView.patch:
-  - Trying to cancel an already cancelled claim — should check claim.cancelled before setting it again
-
-  PreorderView generally:
-  - Race condition on capacity — two requests could pass the capacity check simultaneously and both succeed, slightly exceeding the
-  limit. For your scale this is unlikely to matter, but a database-level transaction would fully prevent it.
   3. Stripe integration — the checkout view is more complex and depends on the basic views working first
+    - check rollback setup everywhere
+    - check stripe webhook
   4. Celery + email — async tasks for notifications, done last since they don't block the core functionality
 
 # Frontend
@@ -60,6 +35,74 @@ need:
 - data store of orders
 - payment processing
 - email / text reminders
+
+## Stripe Integration
+Workflow:                                         
+                                                    
+  1. Customer submits order → PreorderView.post()   
+  creates a Preorder with status PENDING, then calls
+   Stripe API to create a PaymentIntent, saves the  
+  stripe_payment_intent_id, and returns the         
+  client_secret to the frontend                     
+  2. Frontend uses Stripe.js to render the payment  
+  form and collect card details using the           
+  client_secret
+  3. Customer submits payment → Stripe processes it 
+  4. Stripe sends a webhook event
+  (payment_intent.succeeded or                      
+  payment_intent.payment_failed) to your backend
+  5. Webhook handler updates Preorder.status to     
+  CONFIRMED or CANCELLED
+  6. Frontend polls GET /api/orders/<id>/status/
+  until status changes, then shows confirmation     
+   
+  Files needed:                                     
+                  
+  - views.py — update PreorderView.post() to create 
+  the PaymentIntent and return client_secret; add a
+  new StripeWebhookView to handle incoming webhook  
+  events          
+  - urls.py — add route for the webhook endpoint
+  - settings.py — add STRIPE_SECRET_KEY and
+  STRIPE_WEBHOOK_SECRET as environment variables    
+  - requirements.txt — add the stripe package
+                                                    
+  The webhook secret is separate from the API key — 
+  Stripe uses it to sign webhook payloads so you can
+   verify they're genuinely from Stripe and not     
+  spoofed.        
+
+Stripe Docs to Read                                                                                                                 
+                                                                                                                                      
+  Start here:                                                                                                                         
+  - Stripe Quickstart (Python) — end-to-end overview                                                                                  
+  - Payment Intents API — the core object you'll use                                                                                  
+                                                                                                                                      
+  Your specific use case (preorders = pay now, fulfill later):                                                                        
+  - Capture later / separate auth & capture — lets you authorize a card at order time and capture when you fulfill, or just charge    
+  immediately                                                                                                                         
+  - Webhooks — critical — how Stripe notifies your backend that payment succeeded/failed                                              
+                                                                                                                                      
+  Django integration:                                                                                                                 
+  - stripe Python library — the official SDK                                                                                          
+  - Fulfillment via webhooks guide — the canonical pattern for order confirmation                                                     
+                                                                                                                                      
+  ---                                                                                                                                 
+  What You'll Need to Build
+                                                                                                                                      
+  1. POST /orders/ — creates a Stripe PaymentIntent, returns client_secret to frontend
+  2. POST /webhooks/stripe/ — listens for payment_intent.succeeded to confirm the order                                               
+  3. Store stripe_payment_intent_id on your PreorderItem model                                                                        
+                                                                                                                                      
+  Install                                                                                                                             
+                                                                                                                                      
+  pip install stripe                                                                                                                  
+                  
+  Then set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET in your environment/settings.
+
+  ---
+  The webhook endpoint is the most important part to get right — Stripe's webhook guide covers verifying signatures (use
+  stripe.Webhook.construct_event) to prevent spoofed requests.    
 
 # Summary
 next.js

@@ -16,7 +16,7 @@
 |-------|------|-------|
 | `email` | EmailField (unique) | |
 | `subscribed_at` | DateTimeField (auto) | |
-| `unsubscribe_token` | UUIDField | Used in one-click unsubscribe links |
+| `auth_token` | UUIDField | Used in one-click unsubscribe links |
 
 ---
 
@@ -28,7 +28,7 @@
 | `notes` | TextField (optional) | Dietary restrictions, preferences |
 | `subscribed_at` | DateTimeField (auto) | |
 | `active` | BooleanField | Can be deactivated without deletion |
-| `unsubscribe_token` | UUIDField | Used in one-click unsubscribe links |
+| `auth_token` | UUIDField | Used in one-click unsubscribe links |
 
 ---
 
@@ -44,6 +44,7 @@ Represents a batch of food available for guinea pigs to claim.
 | `total_slots` | IntegerField | How many guinea pigs can claim this drop |
 | `created_at` | DateTimeField (auto) | |
 | `notified_at` | DateTimeField (nullable) | Set when emails are sent out |
+| `registration_until` | DateTimeField | Deadline to register for the drop |
 
 ---
 
@@ -83,6 +84,8 @@ Controls when orders are open and how many can be accepted for a given pickup we
 | `closes_at` | DateTimeField | When ordering closes (Thursday evening) |
 | `pickup_date` | DateField | The Monday pickup date this window is for |
 | `active` | BooleanField | Admin can manually open/close |
+| `location` | CharField | Pickup location |
+| `type` | CharField | `R` (Regular) / `P` (Pop-up) |
 
 A cron job or admin action creates a new `PreorderWindow` each week.
 
@@ -93,19 +96,18 @@ Holds item name and price snapshot, controls max number of items that can be ord
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `window` | ForeignKey | Associated Window |
-| `name` | CharField | Name of Product |
-| `unit_price` | DecimalField | unit price of product |
-| `limit` | IntegerField | Max number of product that can be ordered |
-
-A cron job or admin action creates a new `PreorderWindow` each week.
+| `window` | FK → PreorderWindow | |
+| `name` | CharField | Name of product |
+| `unit_price` | DecimalField | Unit price of product |
+| `product` | FK → Product | |
+| `limit` | IntegerField | Max number of this item that can be ordered across all orders |
 
 ---
 
 ### `Preorder`
 | Field | Type | Notes |
 |-------|------|-------|
-| `window` | FK → OrderWindow | |
+| `window` | FK → PreorderWindow | |
 | `customer_name` | CharField | |
 | `customer_email` | EmailField | |
 | `customer_phone` | CharField (optional) | |
@@ -119,11 +121,11 @@ A cron job or admin action creates a new `PreorderWindow` each week.
 
 ---
 
-### `PreoderItem`
+### `PreorderItem`
 | Field | Type | Notes |
 |-------|------|-------|
-| `order` | FK → Order | |
-| `product` | FK → PreorderListing | Listing with price and name |
+| `order` | FK → Preorder | |
+| `product_listing` | FK → PreorderListing | Listing with price and name |
 | `quantity` | IntegerField | |
 
 ---
@@ -133,11 +135,11 @@ A cron job or admin action creates a new `PreorderWindow` each week.
 |-------|------|-------|
 | `name` | CharField | |
 | `email` | EmailField | |
-| `request` | TextField | |
+| `request_description` | TextField | |
 | `requested_pickup_date` | DateTimeField | |
 | `delivery_details` | TextField (optional) | |
 | `submitted_at` | DateTimeField (auto) | |
-| `status` | CharField | `new` / `in_review` / `accepted` / `declined` |
+| `status` | CharField | `new` / `in_review` / `accepted` / `declined` / `complete` |
 
 ---
 
@@ -158,20 +160,10 @@ A cron job or admin action creates a new `PreorderWindow` each week.
 | `POST` | `/api/custom-orders/` | Submit a custom order request |
 | `GET` | `/api/guinea-pig-drops/<id>/` | View a drop (linked from email) |
 | `POST` | `/api/guinea-pig-drops/<id>/claim/` | Claim a slot on a drop |
-| `DELETE` | `/api/guinea-pig-drops/<id>/claim/` | Cancel a claim |
+| `PATCH` | `/api/guinea-pig-drops/<id>/claim/` | Cancel a claim |
 
-### Admin-only (DRF with `IsAdminUser` permission)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/admin/orders/` | List all orders |
-| `PATCH` | `/api/admin/orders/<id>/` | Update order status |
-| `GET` | `/api/admin/custom-orders/` | List custom order requests |
-| `PATCH` | `/api/admin/custom-orders/<id>/` | Update custom order status |
-| `GET` | `/api/admin/guinea-pigs/` | List all guinea pigs |
-| `POST` | `/api/admin/guinea-pig-drops/` | Create a new drop + trigger emails |
-| `GET` | `/api/admin/guinea-pig-drops/` | List all drops and claim counts |
-| `GET` | `/api/admin/mailing-list/` | Export mailing list |
+### Admin
+Admin functionality (managing orders, custom orders, guinea pig drops, mailing list) is handled via the Django admin UI at `/admin/`. No custom admin API endpoints are needed.
 
 ---
 
@@ -183,10 +175,10 @@ A cron job or admin action creates a new `PreorderWindow` each week.
    - Order window is open
    - Confirmed order count for each product is below `limit`
    - All products are still available
-4. Backend creates `Order` with status `pending_payment`, creates a Stripe `PaymentIntent`, returns the `client_secret` to the frontend
+4. Backend creates `Preorder` with status `pending_payment`, creates a Stripe `PaymentIntent`, returns the `client_secret` to the frontend
 5. Frontend uses Stripe.js to collect payment
 6. Stripe sends webhook to `POST /api/stripe/webhook/`
-7. Webhook handler updates `Order.status` to `confirmed` and sends confirmation email
+7. Webhook handler updates `Preorder.status` to `confirmed` and sends confirmation email
 8. Frontend polls `GET /api/orders/<id>/status/` to show confirmation
 
 **Capacity enforcement:** The order limit check in step 3 counts only `confirmed` orders (not `pending_payment`). A short expiry (30 min) on `pending_payment` orders prevents them from blocking slots indefinitely.
@@ -197,7 +189,7 @@ A cron job or admin action creates a new `PreorderWindow` each week.
 
 1. Admin creates a `GuineaPigDrop` via Django admin or `POST /api/admin/guinea-pig-drops/`
 2. Creating the drop triggers a Celery task to email all active guinea pigs
-3. Email contains a link to `/guinea-pigs/drops/<id>/` with their `unsubscribe_token` for auth (no login needed)
+3. Email contains a link to `/guinea-pigs/drops/<id>/` with their `auth_token` for auth (no login needed)
 4. Guinea pig picks a time slot and submits — creates a `GuineaPigClaim`
 5. If `total_slots` is already reached, return 409 (slots full)
 6. Confirmation email sent to the guinea pig with their pickup time
