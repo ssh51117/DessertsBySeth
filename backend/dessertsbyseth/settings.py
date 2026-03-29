@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,9 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0mde&uepw%e@4b#8#k2u=r*^0xul(roarri*p*fen1^jgly3rn'
-STRIPE_WEBHOOK_SECRET = 'pk_test_51TEfVVLJ41ZZ7Wh1KNONIHjPUfczHS0zRFr9eQSeKg5K40UDAJEnVZiDVcLh2fa4ljPCNhPuBcEZez73utXqj5GA008W6XBjy5'
-
+SECRET_KEY = config('SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

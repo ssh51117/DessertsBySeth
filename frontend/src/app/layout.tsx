@@ -3,6 +3,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import Header from "@/app/components/Header"
 import Footer from "@/app/components/Footer"
+import CartProvider from "@/app/components/CartProvider"
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -32,7 +33,7 @@ export default function RootLayout({
         className={`${playfair.variable} ${lato.variable} antialiased`}
       >
         <Header />
-        {children}
+        <CartProvider>{children}</CartProvider>
         <Footer/>
       </body>
     </html>

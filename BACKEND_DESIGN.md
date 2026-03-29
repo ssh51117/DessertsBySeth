@@ -57,10 +57,10 @@ A guinea pig's RSVP to a specific drop.
 | `guinea_pig` | FK → GuineaPig | |
 | `pickup_time` | DateTimeField | Chosen by guinea pig from available slots |
 | `registered_at` | DateTimeField (auto) | |
-| `cancelled` | BooleanField | Soft cancel |
+| `canceled` | BooleanField | Soft cancel |
 
 **Constraint:** `unique_together(drop, guinea_pig)` — one claim per person per drop.
-**Constraint:** Claims where `cancelled=False` must not exceed `drop.total_slots`.
+**Constraint:** Claims where `canceled=False` must not exceed `drop.total_slots`.
 
 ---
 
@@ -112,7 +112,7 @@ Holds item name and price snapshot, controls max number of items that can be ord
 | `customer_email` | EmailField | |
 | `customer_phone` | CharField (optional) | |
 | `created_at` | DateTimeField (auto) | |
-| `status` | CharField | `pending_payment` / `confirmed` / `fulfilled` / `cancelled` |
+| `status` | CharField | `pending_payment` / `confirmed` / `fulfilled` / `canceled` |
 | `stripe_payment_intent_id` | CharField (unique) | |
 | `stripe_payment_status` | CharField | Mirror of Stripe's status |
 | `total` | DecimalField | Snapshot total at time of order |
@@ -206,7 +206,7 @@ Admin functionality (managing orders, custom orders, guinea pig drops, mailing l
 | Custom order accepted/declined | Customer | Status update |
 | Guinea pig drop available | All active guinea pigs | Drop details + claim link |
 | Guinea pig claim confirmed | Guinea pig | Pickup time confirmation |
-| Guinea pig claim cancelled | Guinea pig | Cancellation confirmation |
+| Guinea pig claim canceled | Guinea pig | Cancellation confirmation |
 | Mailing list welcome | New subscriber | Welcome message |
 
 ---

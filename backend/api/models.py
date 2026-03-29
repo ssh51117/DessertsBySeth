@@ -35,7 +35,7 @@ class GuineaPigClaim(models.Model):
     guinea_pig = models.ForeignKey(GuineaPig, on_delete=models.CASCADE)
     pickup_time = models.DateTimeField()
     registered_at = models.DateTimeField(default=timezone.now)
-    cancelled = models.BooleanField(default=False)
+    canceled = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("drop", "guinea_pig")
@@ -80,12 +80,12 @@ class Preorder(models.Model):
     PENDING = "P"
     CONFIRMED = "C"
     FULFILLED = "F"
-    CANCELLED = "X"
+    CANCELED = "X"
     STATUS_OPTIONS = [
         (PENDING, "Pending Payment"),
         (CONFIRMED, "Confirmed"),
         (FULFILLED, "Fulfilled"),
-        (CANCELLED, "Cancelled"),
+        (CANCELED, "Canceled"),
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -4,7 +4,6 @@
 
 ## Backend:
   3. Stripe integration — the checkout view is more complex and depends on the basic views working first
-    - check rollback setup everywhere
     - check stripe webhook
   4. Celery + email — async tasks for notifications, done last since they don't block the core functionality
 
@@ -30,6 +29,46 @@ admin
 - update inventory
 - view orders
 - mark orders completed
+
+## Stripe
+Stripe Frontend Plan                                                                                                                
+                                                                                                                                      
+  1. Cart State Management                                                                                                            
+                                                                                                                                      
+      - cartprovider wraps children in the layout, global cart state
+      - stripeprovider - used only on cart/checkout page to wrap the stripe stuff to make it client
+      - checkoutform lives inside stripeprovder, renders the payment element
+
+                                                                                                                                      
+  2. Preorder Flow — Submit Order to Backend                                                                                          
+  
+  On checkout, POST the cart contents to /api/preorders/ and get back a client_secret and order ID. Store the order ID (e.g. in state 
+  or a cookie) so you can poll the status later.
+                                                                                                                                      
+  3. Render the Stripe Payment Element                                                                                                
+  
+  Wrap the checkout section in Stripe's <Elements> provider (from @stripe/react-stripe-js) using the client_secret from step 2. Render
+   <PaymentElement> inside it — this handles card input, Apple Pay, Google Pay, etc. automatically.
+                                                                                                                                      
+  4. Handle Payment Submission
+
+  On form submit, call stripe.confirmPayment() with a return_url pointing to a confirmation page. Stripe redirects there after the    
+  payment attempt.
+                                                                                                                                      
+  5. Confirmation Page
+
+  At the return_url, read the payment_intent_client_secret query param that Stripe appends. Poll GET /api/preorders/<id>/status/ until
+   the status is CONFIRMED (updated by your webhook), then show a success message.
+                                                                                                                                      
+  ---             
+  Resources
+           
+  - Stripe.js + React setup: https://docs.stripe.com/stripe-js/react
+  - PaymentElement (the all-in-one UI component): https://docs.stripe.com/payments/payment-element                                    
+  - confirmPayment() + redirect flow: https://docs.stripe.com/js/payment_intents/confirm_payment                                      
+  - Testing with the Stripe CLI: https://docs.stripe.com/stripe-cli                                                                   
+  - Test card numbers: https://docs.stripe.com/testing#cards      
+
 # Backend
 need:
 - data store of orders
@@ -52,7 +91,7 @@ Workflow:
   (payment_intent.succeeded or                      
   payment_intent.payment_failed) to your backend
   5. Webhook handler updates Preorder.status to     
-  CONFIRMED or CANCELLED
+  CONFIRMED or CANCELED
   6. Frontend polls GET /api/orders/<id>/status/
   until status changes, then shows confirmation     
    

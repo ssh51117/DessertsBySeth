@@ -1,3 +1,4 @@
 django
 djangorestframework
 stripe>=15.0.0
+python-decouple

@@ -7,7 +7,10 @@ from rest_framework import status
 from django.utils import timezone
 from django.db import transaction
 import stripe
+import logging
 from typing import cast
+
+logger = logging.getLogger(__name__)
 
 def post_generic(serializer):
     if serializer.is_valid():
@@ -144,14 +147,14 @@ class GuineaPigClaimView(APIView):
         if now > drop.registration_until:
             return Response({"error": "drop window closed"}, status=status.HTTP_400_BAD_REQUEST)
         # check that drop is not full
-        current_signup = models.GuineaPigClaim.objects.filter(drop=drop_id, cancelled=False).count()
+        current_signup = models.GuineaPigClaim.objects.filter(drop=drop_id, canceled=False).count()
         if current_signup >= drop.total_slots:
             return Response({"message": "All drop slots claimed"}, status=status.HTTP_409_CONFLICT)
         try:
             claim = models.GuineaPigClaim.objects.get(drop=drop_id, guinea_pig=guinea_pig)
-            if not claim.cancelled:
+            if not claim.canceled:
                 return Response({"error": "Drop already claimed"}, status=status.HTTP_409_CONFLICT)
-            claim.cancelled = False
+            claim.canceled = False
             claim.pickup_time = serializer.validated_data['pickup_time'] # type: ignore
             claim.registered_at = now
             claim.save()
@@ -174,11 +177,11 @@ class GuineaPigClaimView(APIView):
             return Response({"error": "Not a register guinea pig"}, status=status.HTTP_404_NOT_FOUND)
         try:
             claim = models.GuineaPigClaim.objects.get(guinea_pig=guinea_pig, drop=drop_id)
-            if claim.cancelled:
+            if claim.canceled:
                 raise models.GuineaPigClaim.DoesNotExist
         except models.GuineaPigClaim.DoesNotExist:
             return Response({"error": "Claim not found"}, status=status.HTTP_404_NOT_FOUND)
-        claim.cancelled = True
+        claim.canceled = True
         claim.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -195,12 +198,31 @@ class StripeWebhookView(APIView):
         except stripe.SignatureVerificationError:
             return Response(status=status.HTTP_403_FORBIDDEN)
         
-        if event['type'] == 'payment_intent.succeeded':
-            payment_intent = event['data']['object']
-            order_id = payment_intent['metadata']['order_id']
+        payment_intent = event['data']['object']
+        order_id = payment_intent['metadata'].get('order_id')
+        event_type = event['type']
+        updated = None
+        
+        if order_id is None:
+            return Response({'success': True}, status=status.HTTP_200_OK)
 
-        # handle later, deals with saved payments
-        elif event['type'] == 'payment_method.attached':
-            payment_method = event['data']['object']
+        if event_type == 'payment_intent.succeeded':
+            updated = models.Preorder.objects.filter(id=order_id).update(
+                status=models.Preorder.CONFIRMED,
+                stripe_payment_status=payment_intent['status']
+            )
+        elif event_type == 'payment_intent.payment_failed':
+            updated = models.Preorder.objects.filter(id=order_id).update(
+                status=models.Preorder.PENDING,
+                stripe_payment_status=payment_intent['status']
+            )
+        elif event_type == 'payment_intent.canceled':
+            updated = models.Preorder.objects.filter(id=order_id).update(
+                status=models.Preorder.CANCELED,
+                stripe_payment_status=payment_intent['status']
+            )
+        if updated is not None and updated == 0:                
+            logger.error(f"{event_type} for unknown order_id={order_id}, intent={payment_intent['id']}")
+            return Response({'error': 'Order not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response({'success': True}, status=status.HTTP_201_CREATED)
+        return Response({'success': True}, status=status.HTTP_200_OK)
