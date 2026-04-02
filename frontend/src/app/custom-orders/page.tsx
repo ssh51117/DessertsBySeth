@@ -1,11 +1,11 @@
-import Button from "@/app/components/Button"
+import Button from "@/components/Button"
 
 // allow selection of delivery or pickup, with extra fee for delivery and instruction details
 // delivery add location and mention that certains days work better
 // add blurb at top that custom orders are fulfilled by availability require 2 weeks advance notice, and they will hear back in 2-3 business days
 // delivery flat within 30 minutes of Midtown Atlanta, increasing rate further it goes
 
-export default function Home() {
+export default function CustomOrders() {
   return (
     <div className="flex flex-col min-h-screen bg-background my-8 font-sans">
       <div className="px-8 pt-12 pb-6">

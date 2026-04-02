@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Home() {
+export default function GuineaPigs() {
   return (
     <div className="flex flex-col min-h-screen bg-background my-8 font-sans">
       <div className="px-8 pt-12 pb-6">

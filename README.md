@@ -1,10 +1,10 @@
 # TODO
 ## Frontend:
+After that:  
+  1. Build out the cart page to display items and render <StripeProvider> once you have a client_secret from the backend
+  2. Hook menu into setQuantity from CartProvider
 
-
-## Backend:
-  3. Stripe integration — the checkout view is more complex and depends on the basic views working first
-    - check stripe webhook
+## Backend:    
   4. Celery + email — async tasks for notifications, done last since they don't block the core functionality
 
 # Frontend
