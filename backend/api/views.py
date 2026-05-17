@@ -1,4 +1,4 @@
-from . import models, serializers
+ from . import models, serializers
 from .serializers import get_ordered_quantity
 from dessertsbyseth import settings
 from rest_framework.views import APIView
@@ -197,9 +197,13 @@ class StripeWebhookView(APIView):
             )
         except stripe.SignatureVerificationError:
             return Response(status=status.HTTP_403_FORBIDDEN)
+        event_type = event['type']
+        
+        if not event_type.startswith('payment_intent.'):
+            return Response({'success': True}, status=status.HTTP_200_OK)
         
         payment_intent = event['data']['object']
-        order_id = payment_intent['metadata'].get('order_id')
+        order_id = payment_intent['metadata']['order_id'] if 'order_id' in payment_intent['metadata'] else None
         event_type = event['type']
         updated = None
         

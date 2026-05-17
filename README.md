@@ -1,11 +1,26 @@
 # TODO
-## Frontend:
-After that:  
-  1. Build out the cart page to display items and render <StripeProvider> once you have a client_secret from the backend
-  2. Hook menu into setQuantity from CartProvider
+Email (next priority)
+  - Confirmation email with pickup code on payment_intent.succeeded
+  - Guinea pig drop notification email
+  - Drop Window notification email
 
-## Backend:    
-  4. Celery + email — async tasks for notifications, done last since they don't block the core functionality
+  Frontend polish
+  - Empty states (no active preorder window, sold out items)
+  - Better error messages on checkout failure
+  - Cart item quantity adjustments from the cart page (not just menu)
+  - Order confirmation page with order summary
+  - Make more professional
+
+  Admin / operations
+  - Django admin views for managing preorder windows and listings
+  - Admin action to send mailing list blast
+  - Admin action to notify guinea pigs of a new drop
+
+  Later
+  - Phone number collection + SMS notifications via Twilio
+  - Image hosting on S3 instead of local static files
+  - Deploy backend + frontend
+  - persist cart storage and clear on successful storage
 
 # Frontend
 requirements:

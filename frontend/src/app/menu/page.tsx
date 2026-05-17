@@ -1,7 +1,8 @@
 import Image from "next/image";
-import Button from "@/components/Button"
+import AddToCartButton from "@/components/AddToCartButton"
 
 interface Product {
+  id: number
   name: string
   description: string
   price: string
@@ -9,7 +10,7 @@ interface Product {
 }
 
 export default async function Menu() {
-  const res = await fetch(`${process.env.BACKEND_URL}/products/`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/`, {
     cache: "no-store"
   })
   const products: Product[] = await res.json()
@@ -39,9 +40,7 @@ export default async function Menu() {
             height={200}
             priority
             />
-            <Button className="mt-auto my-4">
-                Add to Cart
-            </Button>
+            <AddToCartButton id={product.id} name={product.name} price={parseFloat(product.price)} />
           </div>
             ))}
         </div>

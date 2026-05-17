@@ -46,7 +46,7 @@ class GuineaPigClaimInputSerializer(GuineaPigAuthSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["name", "description", "price", "image"]
+        fields = ["id", "name", "description", "price", "image"]
 
 def get_ordered_quantity(listing):
     return PreorderItem.objects.filter(
@@ -67,7 +67,7 @@ class PreorderWindowSerializer(serializers.ModelSerializer):
     listings = PreorderListingSerializer(many=True)
     class Meta:
         model = PreorderWindow
-        fields = ["opens_at", "closes_at", "pickup_date", "active", "listings"]
+        fields = ["id", "opens_at", "closes_at", "pickup_date", "active", "listings"]
 
 
 class PreorderItemSerializer(serializers.ModelSerializer):
