@@ -86,6 +86,7 @@ Controls when orders are open and how many can be accepted for a given pickup we
 | `active` | BooleanField | Admin can manually open/close |
 | `location` | CharField | Pickup location |
 | `type` | CharField | `R` (Regular) / `P` (Pop-up) |
+| `notified_at` | DateTimeField (nullable) | Set when emails are sent out |
 
 A cron job or admin action creates a new `PreorderWindow` each week.
 

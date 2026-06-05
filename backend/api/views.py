@@ -1,5 +1,6 @@
- from . import models, serializers
+from . import models, serializers
 from .serializers import get_ordered_quantity
+from .services import mailer
 from dessertsbyseth import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -211,10 +212,32 @@ class StripeWebhookView(APIView):
             return Response({'success': True}, status=status.HTTP_200_OK)
 
         if event_type == 'payment_intent.succeeded':
-            updated = models.Preorder.objects.filter(id=order_id).update(
-                status=models.Preorder.CONFIRMED,
-                stripe_payment_status=payment_intent['status']
-            )
+            try:
+                order = models.Preorder.objects.select_related('window').prefetch_related('items__product_listing').get(id=order_id)
+            except models.Preorder.DoesNotExist:
+                logger.error("preorder does not exist despite succesful payment")
+                return Response({'error': 'Order not found, but payment processed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            order.status = models.Preorder.CONFIRMED
+            order.stripe_payment_status = payment_intent['status']
+            order.save()
+            items = [
+                {
+                    "name": item.product_listing.name,
+                    "quantity": item.quantity,
+                    "subtotal": item.quantity * item.product_listing.unit_price
+                }
+                for item in order.items.all()    
+            ]
+            try:
+                mailer.send_order_confirmation(
+                    order.customer_email,
+                    order.customer_name,
+                    str(order.id),
+                    order.window.pickup_date.strftime("%B %d, %Y"),
+                    order.window.location, items, str(order.total)
+                )
+            except Exception as e:
+                logger.error(f"Failed to send confirmation email for order {order.id}: {e}")
         elif event_type == 'payment_intent.payment_failed':
             updated = models.Preorder.objects.filter(id=order_id).update(
                 status=models.Preorder.PENDING,
@@ -228,5 +251,5 @@ class StripeWebhookView(APIView):
         if updated is not None and updated == 0:                
             logger.error(f"{event_type} for unknown order_id={order_id}, intent={payment_intent['id']}")
             return Response({'error': 'Order not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        
         return Response({'success': True}, status=status.HTTP_200_OK)

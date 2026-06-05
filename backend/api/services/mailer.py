@@ -131,7 +131,7 @@ def send_preorder_window_notification(emails: list[tuple], pickup_date: str, clo
 
 
 # custom mailing list
-def send_mailing_list_blast(emails: list[str], subject: str, body: str, unsubscribe_base_url: str):
+def send_mailing_list_blast(emails: list[tuple], subject: str, body: str, unsubscribe_base_url: str):
     for email, token in emails:
         unsubscribe_url = f"{unsubscribe_base_url}/{token}/"
         content = f"""

@@ -68,6 +68,7 @@ class PreorderWindow(models.Model):
     active = models.BooleanField()
     location = models.CharField(blank=True, default="")
     type = models.CharField(choices=WINDOW_TYPE, default=REGULAR)
+    notified_at = models.DateTimeField(blank=True, null=True)
 
 class PreorderListing(models.Model):
     window = models.ForeignKey(PreorderWindow, on_delete=models.CASCADE, related_name="listings")

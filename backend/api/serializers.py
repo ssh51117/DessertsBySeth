@@ -67,7 +67,7 @@ class PreorderWindowSerializer(serializers.ModelSerializer):
     listings = PreorderListingSerializer(many=True)
     class Meta:
         model = PreorderWindow
-        fields = ["id", "opens_at", "closes_at", "pickup_date", "active", "listings"]
+        fields = ["id", "opens_at", "closes_at", "pickup_date", "active", "notified_at", "listings"]
 
 
 class PreorderItemSerializer(serializers.ModelSerializer):

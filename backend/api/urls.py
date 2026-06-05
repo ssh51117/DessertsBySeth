@@ -11,7 +11,7 @@ urlpatterns = [
     path("guinea-pig-drops/<int:drop_id>/claim/", views.GuineaPigClaimView.as_view()),
     path("products/", views.ProductView.as_view()),
     path("preorders/", views.PreorderView.as_view()),
-    path("preorders/<int:id>/status/", views.PreorderStatusView.as_view()),
+    path("preorders/<uuid:id>/status/", views.PreorderStatusView.as_view()),
     path("preorder-window/current/", views.PreorderWindowView.as_view()),
     path("custom-order/", views.CustomOrderView.as_view()),
     
