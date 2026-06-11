@@ -3,27 +3,24 @@ Key Gaps (things that will break or are missing)
 
   Incomplete:
   - No refund/dispute webhook handlers
-  - No tests
 
   Lower priority:
   - frontend/src/lib/stripe.ts uses the secret key on the frontend server component (works, but unconventional — better as a backend call)
 
 # TODO
-Email (next priority)
-
-  Frontend polish
+Frontend polish
   - Empty states (no active preorder window, sold out items)
   - Better error messages on checkout failure
   - Cart item quantity adjustments from the cart page (not just menu)
   - Order confirmation page with order summary
   - Make more professional
 
-  Admin / operations
+Admin / operations
   - Django admin views for managing preorder windows and listings
   - Admin action to send mailing list blast
   - Admin action to notify guinea pigs of a new drop and mailing list subscribed of a new preorder window
 
-  Later
+Later
   - Phone number collection + SMS notifications via Twilio
   - Image hosting on S3 instead of local static files
   - Deploy backend + frontend
