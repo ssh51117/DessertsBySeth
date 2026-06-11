@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='guineapigdrop',
             name='registration_until',
-            field=models.DateTimeField(default=datetime.datetime(2026, 3, 27, 19, 42, 7, 461874)),
+            field=models.DateTimeField(default=datetime.datetime(2026, 3, 27, 19, 42, 7, 461874, tzinfo=datetime.timezone.utc)),
             preserve_default=False,
         ),
         migrations.AddField(

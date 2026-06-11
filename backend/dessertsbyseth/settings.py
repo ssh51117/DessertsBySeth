@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
-RESEND_SECRET_KEY = config('RESENT_SECRET_KEY')
+RESEND_SECRET_KEY = config('RESEND_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
