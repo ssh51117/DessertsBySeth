@@ -1,19 +1,22 @@
-# status
-Key Gaps (things that will break or are missing)
 
-  Incomplete:
-  - No refund/dispute webhook handlers
+# Road to Publishing
+Incomplete:
+- No refund/dispute webhook handlers
+- frontend/src/lib/stripe.ts uses the secret key on the frontend server component (works, but unconventional — better as a backend call)
+- database implementation
+- production security settings
+- wsgi server: gunicorn or uvicorn
+- no static file strategy
+- infra/deploy artifacts: dockerfile, procfile, render.yaml, fly.toml, CI workflow, or vercel config
+- Image hosting on S3 instead of local static files
 
-  Lower priority:
-  - frontend/src/lib/stripe.ts uses the secret key on the frontend server component (works, but unconventional — better as a backend call)
+- resend email needs to be verified
 
-# TODO
 Frontend polish
   - Empty states (no active preorder window, sold out items)
   - Better error messages on checkout failure
   - Cart item quantity adjustments from the cart page (not just menu)
   - Order confirmation page with order summary
-  - Make more professional
 
 Admin / operations
   - Django admin views for managing preorder windows and listings
@@ -22,9 +25,6 @@ Admin / operations
 
 Later
   - Phone number collection + SMS notifications via Twilio
-  - Image hosting on S3 instead of local static files
-  - Deploy backend + frontend
-  - persist cart storage and clear on successful storage
 
 # Frontend
 requirements:
@@ -54,15 +54,14 @@ Stripe Frontend Plan
 
   1. Cart State Management
 
-      - cartprovider wraps children in the layout, global cart state
-      - stripeprovider - used only on cart/checkout page to wrap the stripe stuff to make it client
-      - checkoutform lives inside stripeprovder, renders the payment element
+    - cartprovider wraps children in the layout, global cart state
+    - stripeprovider - used only on cart/checkout page to wrap the stripe stuff to make it client
+    - checkoutform lives inside stripeprovder, renders the payment element
 
 
   2. Preorder Flow — Submit Order to Backend
 
-  On checkout, POST the cart contents to /api/preorders/ and get back a client_secret and order ID. Store the order ID (e.g. in state
-  or a cookie) so you can poll the status later.
+  On checkout, POST the cart contents to /api/preorders/ and get back a client_secret and order ID. Store the order ID (e.g. in state or a cookie) so you can poll the status later.
 
   3. Render the Stripe Payment Element
 
@@ -169,3 +168,6 @@ postrgreSQL
 
 host on aws
 payments with stripe
+
+# to convert images
+magick mogrify -format png *.HEIC

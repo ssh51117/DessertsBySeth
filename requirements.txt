@@ -1,4 +1,4 @@
-django
+django==6.0.3
 djangorestframework
 stripe>=15.0.0
 python-decouple

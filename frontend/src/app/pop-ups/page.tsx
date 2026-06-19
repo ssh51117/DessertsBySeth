@@ -4,17 +4,17 @@ import Image from "next/image"
 const pastPopUps = [
   {
     id: 1,
-    date: "January 15, 2025",
-    location: "Some Venue, City, ST",
-    recap: "A wonderful evening of seasonal desserts. Guests enjoyed a variety of treats featuring winter flavors and locally sourced ingredients.",
-    photos: ["/basque.png", "/cookie.png"],
+    date: "March 14, 2026",
+    location: "Oconee County Farmers Market, Oconee County, GA",
+    recap: "Another afternoon wtih Michellenmatcha, serving Rose Chocolate Chip Cookies and mini Basque Cheesecakes!",
+    photos: ["/popup_full.png"],
   },
   {
     id: 2,
-    date: "March 8, 2025",
-    location: "Another Spot, City, ST",
-    recap: "A spring-themed pop-up celebrating fresh flavors. It was a great turnout and we sold out within the first hour!",
-    photos: ["/onesesametart.png"],
+    date: "February 14, 2026",
+    location: "Athens Chinese New Year Festival, Athens, GA",
+    recap: "Pop-up collab with Michellenmatcha! We brought Three kinds of tarts, and had a great time!",
+    photos: ["/tarts.png"],
   },
 ];
 

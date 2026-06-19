@@ -10,7 +10,7 @@ export default function GuineaPigs() {
       <main className="flex w-full flex-col min-h-screen gap-4 bg-background px-8">
         Want to try more from me? Become a Guinea Pig and get dessert for free!
 
-        Sometimes I also just make too much for one person, and I need to just get rid of it. Other times, I'm workshopping a dessert and need as much feedback as I can get.
+        Sometimes I just make too much for one person, and I need to just get rid of it. Other times, I'm workshopping a dessert and need as much feedback as I can get.
         Either way, Guinea Pigs get desserts for free!
         <div className="flex w-full py-8 gap-16 bg-background">
           <Image
